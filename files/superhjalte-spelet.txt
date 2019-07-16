@@ -1,0 +1,6 @@
+spel/superhjalte-spelet/common/css/games.css
+spel/superhjalte-spelet/common/js/jquery-1.7.2.min.js
+spel/superhjalte-spelet/contentPath/SuperthjalteLoader.swf
+spel/superhjalte-spelet/contentPath/spelet.swf
+spel/superhjalte-spelet/index.html
+spel/superhjalte-spelet/js/47133cef8865d374be7f.main.js
