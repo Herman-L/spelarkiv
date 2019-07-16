@@ -3,10 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const pfs = fs.promises;
 
-const SRC_DIR = path.join(__dirname, 'files');
-const DEST_DIR = path.join(__dirname, 'dest');
-const OVERRIDE_DIR = path.join(__dirname, 'override');
-
 async function exists(path) {
     try {
         await pfs.stat(path);
@@ -19,7 +15,7 @@ async function exists(path) {
 function downloadFile(url, dest) {
     let file = fs.createWriteStream(dest);
     return new Promise((resolve, reject) => {
-        var request = https.get(url, response => {
+        https.get(url, response => {
             response.pipe(file);
             file.on('finish', () => {
                 file.close(resolve);
@@ -31,11 +27,16 @@ function downloadFile(url, dest) {
     });
 }
 
-async function download() {
+(async function download() {
+    var config = JSON.parse(await pfs.readFile(path.resolve('config.json')));
+    const SRC_DIR = path.join(__dirname, config.SRC_DIR);
+    const DEST_DIR = path.join(__dirname, config.DEST_DIR);
+    const OVERRIDE_DIR = path.join(__dirname, config.OVERRIDE_DIR);
+
     let files = [];
     for (let fileName of await pfs.readdir(SRC_DIR)) {
         let filePath = path.join(SRC_DIR, fileName);
-        let newFiles = (await pfs.readFile(filePath, 'utf-8'))
+        let newFiles = (await pfs.readFile(filePath, 'ascii'))
             .split('\n').map(s => s.trim()).filter(s => s.length);
         files = files.concat(newFiles);
     }
@@ -44,9 +45,7 @@ async function download() {
         let url = 'https://media.svt.se/' + file;
         let overridePath = path.join(OVERRIDE_DIR, file);
 
-        if (await exists(destPath))
-            continue;
-
+        if (await exists(destPath)) continue;
         let dir = path.dirname(destPath);
         if (!(await exists(dir))) {
             await pfs.mkdir(dir, {
@@ -62,6 +61,4 @@ async function download() {
             await downloadFile(url, destPath);
         }
     }
-}
-
-download();
+})();

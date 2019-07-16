@@ -1,0 +1,5 @@
+{
+    "SRC_DIR": "files",
+    "DEST_DIR": "dest",
+    "OVERRIDE_DIR": "override"
+}
