@@ -5,6 +5,7 @@ const pfs = fs.promises;
 
 const SRC_DIR = path.join(__dirname, 'files');
 const DEST_DIR = path.join(__dirname, 'dest');
+const OVERRIDE_DIR = path.join(__dirname, 'override');
 
 async function exists(path) {
     try {
@@ -40,7 +41,8 @@ async function download() {
     }
     for (let file of files) {
         let destPath = path.join(DEST_DIR, file);
-        let url = 'https://media.svt.se/' + file
+        let url = 'https://media.svt.se/' + file;
+        let overridePath = path.join(OVERRIDE_DIR, file);
 
         if (await exists(destPath))
             continue;
@@ -52,8 +54,13 @@ async function download() {
             });
         }
 
-        console.log(`Downloading ${file}`);
-        await downloadFile(url, destPath);
+        if (await exists(overridePath)) {
+            console.log(`Copying ${file}`);
+            await pfs.copyFile(overridePath, destPath);
+        } else {
+            console.log(`Downloading ${file}`);
+            await downloadFile(url, destPath);
+        }
     }
 }
 
